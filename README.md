@@ -1,2 +1,2 @@
 # sauron
-Watch for changes in a file in a public GitHub repository and get email notifications
+Watch for changes to a file in a public GitHub repository, get notifications

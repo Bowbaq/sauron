@@ -1,0 +1,26 @@
+hash: 884c0f355310a50baf1964585bde4673d650e388fd16f97555400b8d9c7a284e
+updated: 2017-03-08T10:07:21.131062558-08:00
+imports:
+- name: github.com/Bowbaq/belt
+  version: 6e0f9671f93c706cbe400d18286b78153176a2e9
+- name: github.com/google/go-github
+  version: 173908142398084e14d7f14c39924f0004d43679
+  subpackages:
+  - github
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
+- name: github.com/jmoiron/sqlx
+  version: cac998c4f0959c19c638c523e374fa8e4e0bcfe3
+  subpackages:
+  - reflectx
+- name: github.com/lib/pq
+  version: ca5bc43047f2138703da0f3d3ca89a59f3d597f1
+  subpackages:
+  - oid
+- name: github.com/urfave/cli
+  version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
+- name: gopkg.in/urfave/cli.v1
+  version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
+testImports: []
