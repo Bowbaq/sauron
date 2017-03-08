@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ ! -z ${VERBOSE+x} ]]; then
+  set -x
+fi
+
+
+# Install go
+VERSION="go1.8.linux-amd64.tar.gz"
+
+if [ ! -f "$HOME/.cache/$VERSION" ]; then
+  mkdir -p "$HOME/.cache"
+  curl -o "$HOME/.cache/$VERSION" "https://storage.googleapis.com/golang/$VERSION"
+fi
+
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf "$HOME/.cache/$VERSION"
+
+# Install dependencies
+go get -u github.com/Masterminds/glide && glide install

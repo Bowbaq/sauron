@@ -1,0 +1,19 @@
+machine:
+  environment:
+    PROJECT: "$HOME/.go_workspace/src/github.com/Bowbaq/sauron"
+
+dependencies:
+  override:
+    # Symlink the project into the $GOPATH
+    - mkdir -p "$(dirname "$PROJECT")"
+    - if [[ ! -e "$PROJECT" ]]; then ln -s $HOME/sauron "$PROJECT"; fi
+
+    # Install go dependencies
+    - scripts/ci/prepare
+
+  cache_directories:
+    - "~/.cache"
+
+test:
+  override:
+    - cd $PROJECT && make test vet
