@@ -1,0 +1,4 @@
+sauron.zip
+
+terraform.tfstate*
+terraform.tfvars

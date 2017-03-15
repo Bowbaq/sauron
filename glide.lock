@@ -1,8 +1,41 @@
-hash: 884c0f355310a50baf1964585bde4673d650e388fd16f97555400b8d9c7a284e
-updated: 2017-03-08T10:07:21.131062558-08:00
+hash: f1ae313707191d80e9279b602eb6af00e034c9fec47b904518e78ff63baca62c
+updated: 2017-03-15T16:29:43.633065747-04:00
 imports:
+- name: github.com/apex/go-apex
+  version: 2273a39e2ad2111fe0f7d9873fdc3d98d781e1c0
+- name: github.com/aws/aws-sdk-go
+  version: 695fe24acaf9afe80b0ce261d4637f42ba0b4c7d
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/stscreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - private/protocol
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/restxml
+  - private/protocol/xml/xmlutil
+  - private/waiter
+  - service/s3
+  - service/sns
+  - service/sts
 - name: github.com/Bowbaq/belt
   version: 6e0f9671f93c706cbe400d18286b78153176a2e9
+- name: github.com/go-ini/ini
+  version: 98c45284d68a05a0e0a576de574bd975946ef9ad
 - name: github.com/google/go-github
   version: 173908142398084e14d7f14c39924f0004d43679
   subpackages:
@@ -11,12 +44,14 @@ imports:
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
   - query
+- name: github.com/jmespath/go-jmespath
+  version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
 - name: github.com/jmoiron/sqlx
   version: cac998c4f0959c19c638c523e374fa8e4e0bcfe3
   subpackages:
   - reflectx
 - name: github.com/lib/pq
-  version: ca5bc43047f2138703da0f3d3ca89a59f3d597f1
+  version: 472a0745531a17dbac346e828b4c60e73ddff30c
   subpackages:
   - oid
 - name: github.com/urfave/cli

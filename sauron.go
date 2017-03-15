@@ -32,22 +32,19 @@ func New() *Sauron {
 	}
 }
 
-func (s *Sauron) WithWatcher(w watcher.Watcher) *Sauron {
+// SetWatcher overrides the watcher
+func (s *Sauron) SetWatcher(w watcher.Watcher) {
 	s.watcher = w
-
-	return s
 }
 
-func (s *Sauron) WithNotifier(n notifier.Notifier) *Sauron {
+// SetNotifier overrides the notifier
+func (s *Sauron) SetNotifier(n notifier.Notifier) {
 	s.notifier = n
-
-	return s
 }
 
-func (s *Sauron) WithStore(db store.Store) *Sauron {
+// SetStore sets the store
+func (s *Sauron) SetStore(db store.Store) {
 	s.db = db
-
-	return s
 }
 
 // WatchOptions specifies where to look for updates.
@@ -55,8 +52,8 @@ type WatchOptions struct {
 	// Owner. Required
 	Owner string
 
-	// Repo. Required
-	Repo string
+	// Repository. Required
+	Repository string
 
 	// Restrict to a specific branch
 	Branch string
@@ -67,23 +64,23 @@ type WatchOptions struct {
 
 // Watch checks for updates in the target repository
 func (s *Sauron) Watch(opts *WatchOptions) error {
-	lastUpdated, lastSHA, err := s.db.GetLastUpdated(opts.Owner, opts.Repo)
+	lastUpdated, lastSHA, err := s.db.GetLastUpdated(opts.Owner, opts.Repository)
 	if err != nil {
 		return err
 	}
 	if !lastUpdated.IsZero() {
 		belt.Debugf(
 			"sauron: [%s/%s b: %s, p: %s] last updated at %v",
-			opts.Owner, opts.Repo, opts.Branch, opts.Path, lastUpdated,
+			opts.Owner, opts.Repository, opts.Branch, opts.Path, lastUpdated,
 		)
 	}
 
 	newCommit, err := s.watcher.LastCommit(&watcher.WatchOptions{
-		Owner:  opts.Owner,
-		Repo:   opts.Repo,
-		Branch: opts.Branch,
-		Path:   opts.Path,
-		Since:  lastUpdated,
+		Owner:      opts.Owner,
+		Repository: opts.Repository,
+		Branch:     opts.Branch,
+		Path:       opts.Path,
+		Since:      lastUpdated,
 	})
 	if err != nil {
 		return err
@@ -92,25 +89,21 @@ func (s *Sauron) Watch(opts *WatchOptions) error {
 	if newCommit == nil || isNotAfter(lastUpdated, newCommit) {
 		belt.Debugf(
 			"sauron: [%s/%s b: %s, p: %s] no updates since the last run",
-			opts.Owner, opts.Repo, opts.Branch, opts.Path,
+			opts.Owner, opts.Repository, opts.Branch, opts.Path,
 		)
-		return s.db.SetLastChecked(opts.Owner, opts.Repo)
+		return s.db.SetLastChecked(opts.Owner, opts.Repository)
 	}
 
 	belt.Debugf(
 		"sauron: [%s/%s b: %s, p: %s] updated at %v (%6s)",
-		opts.Owner, opts.Repo, opts.Branch, opts.Path, *newCommit.Author.Date, *newCommit.Tree.SHA,
+		opts.Owner, opts.Repository, opts.Branch, opts.Path, *newCommit.Author.Date, *newCommit.Tree.SHA,
 	)
-	err = s.db.SetLastUpdated(opts.Owner, opts.Repo, newCommit)
-	if err != nil {
-		return err
-	}
-	err = s.notifier.Notify(opts.Owner, opts.Repo, lastSHA, newCommit)
+	err = s.db.SetLastUpdated(opts.Owner, opts.Repository, newCommit)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return s.notifier.Notify(opts.Owner, opts.Repository, lastSHA, newCommit)
 }
 
 func isNotAfter(lastUpdated time.Time, commit *github.Commit) bool {

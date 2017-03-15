@@ -1,0 +1,25 @@
+#--------------------------------------------------------------
+# General
+#--------------------------------------------------------------
+
+region     = "us-west-2"
+account_id = "<account id>"
+
+## Optional - Specify a custom lambda name
+# function_name = "all-seeing-eye"
+
+## Optional - Specify custom S3 settings
+# bucket_name = "my-sauron-state"
+# key_name = "custom-key.json"
+
+## Optional - Specify a custom schedule
+# schedule = "rate(1 minute)"
+
+watches = [
+  {
+    owner      = "bowbaq"
+    repository = "sauron"
+    branch     = "master"
+    path       = "README.md"
+  },
+]

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ ! -z ${VERBOSE+x} ]]; then
+  set -x
+fi
+
+# Build the lambda function
+apex build sauron > infrastructure/sauron.zip
+
+pushd infrastructure >/dev/null
+  # Create infrastructure
+  terraform apply
+
+  # Make sure that cloudwatch logs expire
+  aws logs put-retention-policy                                      \
+    --log-group-name "/aws/lambda/$(terraform output function_name)" \
+    --retention-in-days 7
+popd >/dev/null

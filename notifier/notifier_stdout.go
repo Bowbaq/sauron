@@ -8,6 +8,7 @@ import (
 
 type stdoutNotifier struct{}
 
+// NewStdout creates a basic Notifier that prints to standard output
 func NewStdout() Notifier {
 	return &stdoutNotifier{}
 }

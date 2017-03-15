@@ -56,14 +56,14 @@ func main() {
 
 		s := sauron.New()
 		if dbURL := c.String("database"); dbURL != "" {
-			s = s.WithStore(store.NewPostgres(dbURL))
+			s.SetStore(store.NewPostgres(dbURL))
 		}
 
 		opts := sauron.WatchOptions{
-			Owner:  owner,
-			Repo:   repo,
-			Branch: c.String("branch"),
-			Path:   c.String("path"),
+			Owner:      owner,
+			Repository: repo,
+			Branch:     c.String("branch"),
+			Path:       c.String("path"),
 		}
 		if err := s.Watch(&opts); err != nil {
 			log.Fatalf("sauron-cli: Error retrieving latest update: %v", err)

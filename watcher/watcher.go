@@ -11,8 +11,8 @@ type WatchOptions struct {
 	// Owner. Required
 	Owner string
 
-	// Repo. Required
-	Repo string
+	// Repository. Required
+	Repository string
 
 	// Restrict to a specific branch
 	Branch string
@@ -24,7 +24,7 @@ type WatchOptions struct {
 	Since time.Time
 }
 
-// Watcher is the interface for watchers of public GitHub repositories
+// Watcher is the interface required by Sauron to detect changes
 type Watcher interface {
 	LastCommit(opts *WatchOptions) (*github.Commit, error)
 }

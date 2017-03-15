@@ -6,6 +6,7 @@ type githubWatcher struct {
 	ghClient *github.Client
 }
 
+// NewGithub instantiates a new watcher for public GitHub repositories.
 func NewGithub() Watcher {
 	return &githubWatcher{
 		ghClient: github.NewClient(nil),
@@ -29,7 +30,7 @@ func (gw *githubWatcher) LastCommit(opts *WatchOptions) (*github.Commit, error) 
 		listOpts.Path = opts.Path
 	}
 
-	commits, _, err := gw.ghClient.Repositories.ListCommits(opts.Owner, opts.Repo, listOpts)
+	commits, _, err := gw.ghClient.Repositories.ListCommits(opts.Owner, opts.Repository, listOpts)
 	if err != nil {
 		return nil, err
 	}

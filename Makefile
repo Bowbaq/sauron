@@ -16,11 +16,11 @@ dev: fmtcheck
 
 # test runs the unit tests with race detection
 test: fmtcheck
-	go test $(VERBOSETESTS) -race $(PACKAGES) $(TESTARGS)
+	go test -race $(PACKAGES) $(TESTARGS)
 
 # testnorace runs the tests without race detection
 testnorace: fmtcheck
-	go test $(VERBOSETESTS) $(PACKAGES) $(TESTARGS)
+	go test $(PACKAGES) $(TESTARGS)
 
 # vet runs the Go source code static analysis tool `vet` to find
 # any common errors.
