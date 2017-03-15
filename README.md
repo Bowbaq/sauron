@@ -28,7 +28,7 @@ The deployment script needs the following tools to be installed:
 
 1. Run the deployment script
     ```shell
-    `AWS_PROFILE=<aws profile> ./scripts/deploy`
+    AWS_PROFILE=<aws profile> ./scripts/deploy
     ```
     This will:
     - Package the lambda function
