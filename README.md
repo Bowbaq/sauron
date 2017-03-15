@@ -35,8 +35,10 @@ The deployment script needs the following tools to be installed:
     - Create the needed infrastructure.
       > Note: This may not be free, but it should be cheap (and I'm not responsible for any cost you might incur)
 
-Congratulations, Sauron is now publishing change events to an SNS topic. You can get the ARN by running
-`(cd infrastructure; terraform output sns_topic)`.
+Congratulations, Sauron is now publishing change events to an SNS topic. You can get the ARN by running:
+```shell
+(cd infrastructure; terraform output sns_topic)
+```
 
 You can get email notification by subscribing to the topic:
 ```shell
