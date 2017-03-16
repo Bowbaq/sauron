@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ ! -z ${VERBOSE+x} ]]; then
+  set -x
+fi
+
+# The version of terraform to be installed
+TF_VERSION=0.8.8
+
+# Path to the cached terraform binary
+BIN_DIR="$HOME/bin"
+TF_BIN_PATH="$BIN_DIR/terraform"
+
+# Installs the current version of terraform
+install_terraform() {
+  echo "Installing terraform $TF_VERSION"
+
+  if [ ! -d "$BIN_DIR" ]; then
+    mkdir -p "$BIN_DIR"
+  fi
+
+  curl -sSL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" \
+    -o "/tmp/terraform-$TF_VERSION.zip"
+
+  pushd /tmp >/dev/null
+    unzip "terraform-$TF_VERSION.zip"
+    rm "terraform-$TF_VERSION.zip"
+    mv terraform* "$BIN_DIR"
+  popd >/dev/null
+}
+
+
+currently_installed_terraform_version() {
+  $TF_BIN_PATH version | head -n1 | cut -c 12-
+}
+
+if [ ! -f "$TF_BIN_PATH" ]; then
+  echo "No terraform found"
+  install_terraform
+else
+  EXISTING_TF_VERSION=$(currently_installed_terraform_version)
+  if [ "$TF_VERSION" != "$EXISTING_TF_VERSION" ]; then
+    echo "The latest version of terraform is $TF_VERSION, CircleCI has $EXISTING_TF_VERSION. Upgrading..."
+    rm -rf "$BIN_DIR"/terraform*
+    install_terraform
+  else
+    echo "Using cached terraform $EXISTING_TF_VERSION"
+  fi
+fi

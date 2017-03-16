@@ -1,14 +1,10 @@
 machine:
   environment:
+    PATH: $HOME/.cache/bin:$PATH
     PROJECT: "$HOME/.go_workspace/src/github.com/Bowbaq/sauron"
 
 dependencies:
   override:
-    # Symlink the project into the $GOPATH
-    - mkdir -p "$(dirname "$PROJECT")"
-    - if [[ ! -e "$PROJECT" ]]; then ln -s $HOME/sauron "$PROJECT"; fi
-
-    # Install go dependencies
     - scripts/ci/prepare
 
   cache_directories:
@@ -16,4 +12,10 @@ dependencies:
 
 test:
   override:
-    - cd $PROJECT && make test vet
+    - make test vet
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - AWS_PROFILE=default AWS_DEFAULT_REGION=us-west-2 ./scripts/ci/deploy

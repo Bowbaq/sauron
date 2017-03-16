@@ -6,17 +6,15 @@ if [[ ! -z ${VERBOSE+x} ]]; then
   set -x
 fi
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Install go
-VERSION="go1.8.linux-amd64.tar.gz"
-
-if [ ! -f "$HOME/.cache/$VERSION" ]; then
-  mkdir -p "$HOME/.cache"
-  curl -o "$HOME/.cache/$VERSION" "https://storage.googleapis.com/golang/$VERSION"
-fi
-
-sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf "$HOME/.cache/$VERSION"
+# Move the project into the right location
+rm -rf "$PROJECT"
+mkdir -p "$(dirname "$PROJECT")"
+mv "$HOME/sauron" "$PROJECT"
+ln -s "$PROJECT" "$HOME/sauron"
 
 # Install dependencies
-go get -u github.com/Masterminds/glide && glide install
+"$DIR/install-go"
+"$DIR/install-terraform"
+"$DIR/install-apex"

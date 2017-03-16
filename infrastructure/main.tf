@@ -1,7 +1,3 @@
-variable "region" {
-  description = "The AWS region in which to deploy sauron"
-}
-
 variable "account_id" {
   description = "The id of the AWS in which to deploy"
 }
@@ -32,7 +28,6 @@ variable "watches" {
 }
 
 provider "aws" {
-  region              = "${var.region}"
   allowed_account_ids = ["${var.account_id}"]
 }
 
@@ -102,6 +97,8 @@ EOF
 resource "aws_s3_bucket" "state" {
   bucket = "${coalesce(var.bucket_name, format("sauron-%10s", sha1(uuid())))}"
   acl    = "private"
+
+  force_destroy = true
 
   lifecycle {
     ignore_changes = ["bucket"]

@@ -23,12 +23,12 @@ The deployment script needs the following tools to be installed:
     ```
     - Update the `account_id` (you can find it [here](https://console.aws.amazon.com/support/home))
     - Add your own watches to the list (by default `sauron` watches this file)
-    
+
 ### Deployment
 
 1. Run the deployment script
     ```shell
-    AWS_PROFILE=<aws profile> ./scripts/deploy
+    AWS_PROFILE=<profile> AWS_DEFAULT_REGION=<region> ./scripts/deploy
     ```
     This will:
     - Package the lambda function
@@ -42,7 +42,7 @@ Congratulations, Sauron is now publishing change events to an SNS topic. You can
 
 You can get email notification by subscribing to the topic:
 ```shell
-aws --profile <aws profile> sns subscribe                        \
+aws sns subscribe                                                \
   --topic-arn "$(cd infrastructure; terraform output sns_topic)" \
   --protocol email                                               \
   --notification-endpoint john.doe@example.com

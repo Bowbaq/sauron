@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ ! -z ${VERBOSE+x} ]]; then
+  set -x
+fi
+
+# The version of apex to be installed
+APEX_VERSION=0.13.0
+
+# Path to the cached apex binary
+BIN_DIR="$HOME/bin"
+APEX_BIN_PATH="$BIN_DIR/apex"
+
+# Installs the current version of apex
+install_apex() {
+  echo "Installing apex $APEX_VERSION"
+
+  if [ ! -d "$BIN_DIR" ]; then
+    mkdir -p "$BIN_DIR"
+  fi
+
+  curl -sSL "https://github.com/apex/apex/releases/download/v$APEX_VERSION/apex_linux_amd64" -o "$APEX_BIN_PATH"
+  chmod u+x "$APEX_BIN_PATH"
+}
+
+
+currently_installed_apex_version() {
+  $APEX_BIN_PATH version | head -n1 | cut -c 14-
+}
+
+if [ ! -f "$APEX_BIN_PATH" ]; then
+  echo "No apex found"
+  install_apex
+else
+  EXISTING_APEX_VERSION=$(currently_installed_apex_version)
+  if [ "$APEX_VERSION" != "$EXISTING_APEX_VERSION" ]; then
+    echo "The latest version of apex is $APEX_VERSION, CircleCI has $EXISTING_APEX_VERSION. Upgrading..."
+    rm -rf "$BIN_DIR"/apex*
+    install_apex
+  else
+    echo "Using cached apex $EXISTING_APEX_VERSION"
+  fi
+fi
