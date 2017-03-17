@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/Bowbaq/belt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -36,6 +37,7 @@ func NewS3(bucket, key string) Store {
 }
 
 func (s3s *s3Store) read() (sauronState, error) {
+	belt.Debugf("Reading s3://%s/%s", s3s.bucket, s3s.key)
 	resp, err := s3s.client.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(s3s.bucket),
 		Key:    aws.String(s3s.key),
@@ -62,6 +64,7 @@ func (s3s *s3Store) write(s sauronState) error {
 		return fmt.Errorf("Failed to encode state: %v", err)
 	}
 
+	belt.Debugf("Writing s3://%s/%s", s3s.bucket, s3s.key)
 	_, err = s3s.client.PutObject(&s3.PutObjectInput{
 		Bucket: aws.String(s3s.bucket),
 		Key:    aws.String(s3s.key),

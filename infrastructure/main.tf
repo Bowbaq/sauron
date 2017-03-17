@@ -69,11 +69,13 @@ resource "aws_iam_role_policy" "sauron" {
     },
     {
       "Action": [
+        "s3:ListBucket",
         "s3:GetObject",
         "s3:PutObject"
       ],
       "Effect": "Allow",
       "Resource": [
+        "${aws_s3_bucket.state.arn}",
         "${aws_s3_bucket.state.arn}/${var.key_name}"
       ],
       "Sid": "AllowS3StateReadWrite"
@@ -142,7 +144,7 @@ resource "aws_lambda_permission" "allow-cloudwatch" {
 
 resource "aws_cloudwatch_event_rule" "sauron" {
   name                = "sauron-trigger"
-  description         = "Invoke sauron every 1 minute"
+  description         = "Invoke sauron every ${var.schedule}"
   schedule_expression = "${var.schedule}"
 }
 

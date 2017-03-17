@@ -11,6 +11,14 @@ import (
 	"github.com/Bowbaq/sauron/watcher"
 )
 
+// Error encodes a constant error string
+type Error string
+
+// Error implements the error interface
+func (e Error) Error() string {
+	return string(e)
+}
+
 // Sauron watches for changes in GitHub repositories
 type Sauron struct {
 	watcher watcher.Watcher
@@ -62,8 +70,20 @@ type WatchOptions struct {
 	Path string
 }
 
+const (
+	ErrOwnerRequired      = Error("Owner cannot be empty")
+	ErrRepositoryRequired = Error("Repository cannot be empty")
+)
+
 // Watch checks for updates in the target repository
 func (s *Sauron) Watch(opts *WatchOptions) error {
+	if opts.Owner == "" {
+		return ErrOwnerRequired
+	}
+	if opts.Repository == "" {
+		return ErrRepositoryRequired
+	}
+
 	lastUpdated, lastSHA, err := s.db.GetLastUpdated(opts.Owner, opts.Repository)
 	if err != nil {
 		return err
