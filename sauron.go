@@ -1,23 +1,13 @@
 package sauron
 
 import (
-	"time"
-
-	"github.com/google/go-github/github"
-
 	"github.com/Bowbaq/belt"
+
+	"github.com/Bowbaq/sauron/model"
 	"github.com/Bowbaq/sauron/notifier"
 	"github.com/Bowbaq/sauron/store"
 	"github.com/Bowbaq/sauron/watcher"
 )
-
-// Error encodes a constant error string
-type Error string
-
-// Error implements the error interface
-func (e Error) Error() string {
-	return string(e)
-}
 
 // Sauron watches for changes in GitHub repositories
 type Sauron struct {
@@ -55,77 +45,43 @@ func (s *Sauron) SetStore(db store.Store) {
 	s.db = db
 }
 
-// WatchOptions specifies where to look for updates.
-type WatchOptions struct {
-	// Owner. Required
-	Owner string
-
-	// Repository. Required
-	Repository string
-
-	// Restrict to a specific branch
-	Branch string
-
-	// Restrict to a specific path
-	Path string
-}
-
-const (
-	ErrOwnerRequired      = Error("Owner cannot be empty")
-	ErrRepositoryRequired = Error("Repository cannot be empty")
-)
-
 // Watch checks for updates in the target repository
-func (s *Sauron) Watch(opts *WatchOptions) error {
-	if opts.Owner == "" {
-		return ErrOwnerRequired
-	}
-	if opts.Repository == "" {
-		return ErrRepositoryRequired
-	}
-
-	lastUpdated, lastSHA, err := s.db.GetLastUpdated(opts.Owner, opts.Repository)
-	if err != nil {
+func (s *Sauron) Watch(opts model.WatchOptions) error {
+	if err := opts.Validate(); err != nil {
 		return err
 	}
-	if !lastUpdated.IsZero() {
-		belt.Debugf(
-			"sauron: [%s/%s b: %s, p: %s] last updated at %v",
-			opts.Owner, opts.Repository, opts.Branch, opts.Path, lastUpdated,
-		)
-	}
 
-	newCommit, err := s.watcher.LastCommit(&watcher.WatchOptions{
-		Owner:      opts.Owner,
-		Repository: opts.Repository,
-		Branch:     opts.Branch,
-		Path:       opts.Path,
-		Since:      lastUpdated,
-	})
+	lastUpdate, err := s.db.GetLastUpdate(store.Key(opts))
 	if err != nil {
 		return err
 	}
 
-	if newCommit == nil || isNotAfter(lastUpdated, newCommit) {
+	update, err := s.watcher.CheckForUpdate(opts, lastUpdate.Timestamp)
+	if err != nil {
+		return err
+	}
+
+	if update.IsZero() || update.IsNotAfter(lastUpdate) {
 		belt.Debugf(
-			"sauron: [%s/%s b: %s, p: %s] no updates since the last run",
-			opts.Owner, opts.Repository, opts.Branch, opts.Path,
+			"sauron: [%s b: %s, p: %s] no updates since the last run",
+			opts.Repository, opts.Branch, opts.Path,
 		)
-		return s.db.SetLastChecked(opts.Owner, opts.Repository)
+		return s.db.SetLastChecked(store.Key(opts))
 	}
 
 	belt.Debugf(
-		"sauron: [%s/%s b: %s, p: %s] updated at %v (%6s)",
-		opts.Owner, opts.Repository, opts.Branch, opts.Path, *newCommit.Author.Date, *newCommit.Tree.SHA,
+		"sauron: [%s b: %s, p: %s] updated at %v (%6s)",
+		opts.Repository, opts.Branch, opts.Path, update.Timestamp, update.SHA,
 	)
-	err = s.db.SetLastUpdated(opts.Owner, opts.Repository, newCommit)
+	err = s.db.RecordUpdate(store.Key(opts), update)
 	if err != nil {
 		return err
 	}
 
-	return s.notifier.Notify(opts.Owner, opts.Repository, lastSHA, newCommit)
-}
+	// Only notify if there was a change, not on the first run
+	if !lastUpdate.IsZero() {
+		return s.notifier.Notify(opts, lastUpdate, update)
+	}
 
-func isNotAfter(lastUpdated time.Time, commit *github.Commit) bool {
-	return !commit.Author.Date.After(lastUpdated)
+	return nil
 }

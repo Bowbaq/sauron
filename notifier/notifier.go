@@ -1,9 +1,9 @@
 package notifier
 
-import "github.com/google/go-github/github"
+import "github.com/Bowbaq/sauron/model"
 
 // Notifier is the interface required by Sauron to publish changes
 type Notifier interface {
 	// Notify publishes changes detected by Sauron
-	Notify(owner, repo, lastSHA string, newCommit *github.Commit) error
+	Notify(opts model.WatchOptions, lastUpdate, update model.Update) error
 }

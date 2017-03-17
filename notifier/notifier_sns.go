@@ -5,7 +5,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
-	"github.com/google/go-github/github"
+
+	"github.com/Bowbaq/sauron/model"
 )
 
 type snsNotifier struct {
@@ -23,12 +24,12 @@ func NewSNS(targetARN string) Notifier {
 	}
 }
 
-func (sn *snsNotifier) Notify(owner, repo, lastSHA string, newCommit *github.Commit) error {
+func (sn *snsNotifier) Notify(opts model.WatchOptions, lastUpdate, update model.Update) error {
 	message := fmt.Sprintf(
-		"%s/%s was updated at %v from %6s to %6s\n",
-		owner, repo, *newCommit.Author.Date, lastSHA, *newCommit.Tree.SHA,
+		"%s was updated at %v from %6s to %6s\n",
+		opts.Repository, update.Timestamp, lastUpdate.SHA, update.SHA,
 	)
-	subject := fmt.Sprintf("sauron: change detected %s/%s", owner, repo)
+	subject := fmt.Sprintf("sauron: change detected %s", opts.Repository)
 
 	_, err := sn.client.Publish(&sns.PublishInput{
 		Message:   &message,

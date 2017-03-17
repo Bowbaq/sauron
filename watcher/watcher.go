@@ -3,28 +3,10 @@ package watcher
 import (
 	"time"
 
-	"github.com/google/go-github/github"
+	"github.com/Bowbaq/sauron/model"
 )
 
-// WatchOptions specifies where to look for updates.
-type WatchOptions struct {
-	// Owner. Required
-	Owner string
-
-	// Repository. Required
-	Repository string
-
-	// Restrict to a specific branch
-	Branch string
-
-	// Restrict to a specific path
-	Path string
-
-	// Restrict to updates after a specific date
-	Since time.Time
-}
-
-// Watcher is the interface required by Sauron to detect changes
+// Watcher is the interface required by Sauron to detect changes.
 type Watcher interface {
-	LastCommit(opts *WatchOptions) (*github.Commit, error)
+	CheckForUpdate(opts model.WatchOptions, since time.Time) (model.Update, error)
 }

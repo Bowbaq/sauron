@@ -1,25 +1,26 @@
 package store
 
 import (
-	"database/sql"
 	"os"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	// Import the PostgreSQL driver
 	_ "github.com/lib/pq"
 
-	"github.com/google/go-github/github"
-	"github.com/jmoiron/sqlx"
+	"github.com/Bowbaq/sauron/model"
 )
 
 const schema = `
 CREATE TABLE IF NOT EXISTS state (
-    owner               varchar(128),
-    repo                varchar(128),
-    last_updated        timestamp,
-    last_commit         varchar(40),
-    last_checked        timestamp,
-    CONSTRAINT owner_repo PRIMARY KEY(owner, repo)
+  owner        varchar,
+  name         varchar,
+  branch       varchar DEFAULT '',
+  path         varchar DEFAULT '',
+  timestamp    timestamp,
+  sha          varchar(40),
+  last_checked timestamp,
+  CONSTRAINT key PRIMARY KEY(owner, name, branch, path)
 );
 `
 
@@ -45,37 +46,50 @@ func NewPostgres(dataSource string) Store {
 	return ps
 }
 
-// GetLastUpdated returns the last time a repository was updated.
-func (ps *postgresStore) GetLastUpdated(owner, repo string) (time.Time, string, error) {
-	var result struct {
-		LastUpdated time.Time `db:"last_updated"`
-		LastCommit  string    `db:"last_commit"`
-	}
-	err := ps.db.Get(&result, "SELECT last_updated, last_commit FROM state WHERE owner = $1 AND repo = $2", owner, repo)
-	if err == sql.ErrNoRows {
-		err = nil
+// GetLastUpdate returns the last time a repository was updated.
+func (ps *postgresStore) GetLastUpdate(key WatchKey) (model.Update, error) {
+	rows, err := ps.db.NamedQuery(`
+    SELECT timestamp, sha FROM state
+    WHERE owner = :repository.owner AND name = :repository.name AND branch = :branch AND path = :path`,
+		key,
+	)
+	if err != nil {
+		return model.Update{}, err
 	}
 
-	return result.LastUpdated, result.LastCommit, err
+	var u model.Update
+	rows.Next()
+	err = rows.StructScan(&u)
+	if err != nil {
+		if err.Error() == "sql: Rows are closed" {
+			return u, nil
+		}
+		return model.Update{}, err
+	}
+
+	return u, nil
 }
 
-// SetLastUpdated records the last update for a specific repository.
-func (ps *postgresStore) SetLastUpdated(owner, repo string, commit *github.Commit) error {
+// RecordUpdate records the last update for a specific repository.
+func (ps *postgresStore) RecordUpdate(key WatchKey, update model.Update) error {
 	_, err := ps.db.NamedExec(`
     INSERT INTO state (
-      owner, repo, last_updated, last_commit, last_checked
+      owner, name, branch, path, timestamp, sha, last_checked
     )
     VALUES (
-      :owner, :repo, :last_updated, :last_commit, :last_checked
+      :repository.owner, :repository.name, :branch, :path, :timestamp, :sha, :last_checked
     )
-    ON CONFLICT (owner, repo) DO UPDATE SET
-      last_updated = :last_updated, last_commit = :last_commit, last_checked = :last_checked`,
-		map[string]interface{}{
-			"owner":        owner,
-			"repo":         repo,
-			"last_updated": commit.Author.Date,
-			"last_commit":  commit.Tree.SHA,
-			"last_checked": time.Now().UTC(),
+    ON CONFLICT (owner, name, branch, path) DO UPDATE SET
+      timestamp = :timestamp, sha = :sha, last_checked = :last_checked`,
+		struct {
+			WatchKey
+			RepoState
+		}{
+			WatchKey: key,
+			RepoState: RepoState{
+				Update:      update,
+				LastChecked: time.Now().UTC(),
+			},
 		},
 	)
 
@@ -83,13 +97,18 @@ func (ps *postgresStore) SetLastUpdated(owner, repo string, commit *github.Commi
 }
 
 // SetLastChecked records the last check time for a specific repository.
-func (ps *postgresStore) SetLastChecked(owner, repo string) error {
+func (ps *postgresStore) SetLastChecked(key WatchKey) error {
 	_, err := ps.db.NamedExec(
-		`UPDATE state SET last_checked = :last_checked WHERE owner = :owner and repo = :repo`,
-		map[string]interface{}{
-			"owner":        owner,
-			"repo":         repo,
-			"last_checked": time.Now().UTC(),
+		`UPDATE state SET last_checked = :last_checked
+     WHERE owner = :repository.owner AND name = :repository.name AND branch = :branch AND path = :path`,
+		struct {
+			WatchKey
+			RepoState
+		}{
+			WatchKey: key,
+			RepoState: RepoState{
+				LastChecked: time.Now().UTC(),
+			},
 		},
 	)
 

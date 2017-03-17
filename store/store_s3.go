@@ -36,7 +36,7 @@ func NewS3(bucket, key string) Store {
 	return s
 }
 
-func (s3s *s3Store) read() (sauronState, error) {
+func (s3s *s3Store) read() (State, error) {
 	belt.Debugf("Reading s3://%s/%s", s3s.bucket, s3s.key)
 	resp, err := s3s.client.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(s3s.bucket),
@@ -44,12 +44,12 @@ func (s3s *s3Store) read() (sauronState, error) {
 	})
 	if err != nil {
 		if err.(awserr.Error).Code() == "NoSuchKey" {
-			return make(sauronState), nil
+			return make(State), nil
 		}
 		return nil, fmt.Errorf("Failed to read state from S3: %v", err)
 	}
 
-	var s sauronState
+	var s State
 	err = json.NewDecoder(resp.Body).Decode(&s)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to decode state: %v", err)
@@ -58,7 +58,7 @@ func (s3s *s3Store) read() (sauronState, error) {
 	return s, nil
 }
 
-func (s3s *s3Store) write(s sauronState) error {
+func (s3s *s3Store) write(s State) error {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return fmt.Errorf("Failed to encode state: %v", err)

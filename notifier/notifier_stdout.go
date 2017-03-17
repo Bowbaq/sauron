@@ -3,7 +3,7 @@ package notifier
 import (
 	"fmt"
 
-	"github.com/google/go-github/github"
+	"github.com/Bowbaq/sauron/model"
 )
 
 type stdoutNotifier struct{}
@@ -13,10 +13,10 @@ func NewStdout() Notifier {
 	return &stdoutNotifier{}
 }
 
-func (sn *stdoutNotifier) Notify(owner, repo, lastSHA string, newCommit *github.Commit) error {
+func (sn *stdoutNotifier) Notify(opts model.WatchOptions, lastUpdate, update model.Update) error {
 	fmt.Printf(
-		"%s/%s was updated at %v from %6s to %6s\n",
-		owner, repo, *newCommit.Author.Date, lastSHA, *newCommit.Tree.SHA,
+		"%s was updated at %v from %6s to %6s\n",
+		opts.Repository, update.Timestamp, lastUpdate.SHA, update.SHA,
 	)
 
 	return nil

@@ -6,10 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Bowbaq/sauron"
-	"github.com/Bowbaq/sauron/store"
-
 	"github.com/urfave/cli"
+
+	"github.com/Bowbaq/sauron"
+	"github.com/Bowbaq/sauron/model"
+	"github.com/Bowbaq/sauron/store"
 )
 
 var (
@@ -46,6 +47,16 @@ func main() {
 			Usage:  "Database URL to store state",
 			EnvVar: "DATABASE_URL",
 		},
+		cli.StringFlag{
+			Name:   "s3-bucket",
+			Usage:  "S3 bucket name to store state",
+			EnvVar: "S3_BUCKET",
+		},
+		cli.StringFlag{
+			Name:   "s3-key",
+			Usage:  "S3 bucket key to store state",
+			EnvVar: "S3_KEY",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -58,14 +69,20 @@ func main() {
 		if dbURL := c.String("database"); dbURL != "" {
 			s.SetStore(store.NewPostgres(dbURL))
 		}
-
-		opts := sauron.WatchOptions{
-			Owner:      owner,
-			Repository: repo,
-			Branch:     c.String("branch"),
-			Path:       c.String("path"),
+		bucket, key := c.String("s3-bucket"), c.String("s3-key")
+		if bucket != "" && key != "" {
+			s.SetStore(store.NewS3(bucket, key))
 		}
-		if err := s.Watch(&opts); err != nil {
+
+		opts := model.WatchOptions{
+			Repository: model.Repository{
+				Owner: owner,
+				Name:  repo,
+			},
+			Branch: c.String("branch"),
+			Path:   c.String("path"),
+		}
+		if err := s.Watch(opts); err != nil {
 			log.Fatalf("sauron-cli: Error retrieving latest update: %v", err)
 		}
 

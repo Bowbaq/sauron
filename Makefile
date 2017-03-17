@@ -42,10 +42,10 @@ lint:
 
 # lint runs the Go source code static analysis tool `gometalinter` to find
 # any common style errors.
-metalint: tools dev
-	-gometalinter --deadline 300s   \
-  -E unused -E misspell           \
-  --tests --enable-gc --aggregate \
+metalint: dev
+	-gometalinter --deadline 300s -j 4       \
+  -E unused -E misspell                    \
+  --tests --enable-gc --aggregate --vendor \
   $(PACKAGES)
 
 fmt:
