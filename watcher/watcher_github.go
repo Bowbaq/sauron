@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/go-github/github"
@@ -36,7 +37,9 @@ func (gw *githubWatcher) CheckForUpdate(opts model.WatchOptions, since time.Time
 		listOpts.Path = opts.Path
 	}
 
-	commits, _, err := gw.ghClient.Repositories.ListCommits(opts.Repository.Owner, opts.Repository.Name, listOpts)
+	commits, _, err := gw.ghClient.Repositories.ListCommits(
+		context.Background(), opts.Repository.Owner, opts.Repository.Name, listOpts,
+	)
 	if err != nil {
 		return model.Update{}, err
 	}

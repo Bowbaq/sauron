@@ -9,9 +9,9 @@ import (
 
 // A Repository is the object being watched by Sauron
 type Repository struct {
-	Owner string `db:"owner"`
+	Owner string `db:"owner" long:"owner" env:"GITHUB_OWNER" description:"owner of the repository" required:"yes"`
 
-	Name string `db:"name"`
+	Name string `db:"name" long:"repository" env:"GITHUB_REPOSITORY" description:"name of the repository" required:"yes"`
 }
 
 func (r Repository) String() string {
@@ -23,10 +23,10 @@ type WatchOptions struct {
 	Repository Repository
 
 	// Restrict to a specific branch
-	Branch string
+	Branch string `long:"branch" env:"GITHUB_BRANCH" description:"branch to watch in the repository"`
 
 	// Restrict to a specific path
-	Path string
+	Path string `long:"path" env:"GITHUB_PATH" description:"path to watch in the repository"`
 }
 
 // Validate returns an error when options are invalid, nil otherwise

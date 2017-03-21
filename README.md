@@ -3,15 +3,28 @@ Watch for changes to a file in a public GitHub repository, get notifications
 
 ## Deploy
 
-### Dependencies
+You have a few options when it comes to deploy Sauron. Currently supported are a standlone CLI with a CRON job
+and an AWS deployment using Lambda, S3 for storage and SNS for notifications.
 
-The deployment script needs the following tools to be installed:
+### Standalone
+
+TODO
+
+### Heroku
+
+TODO
+
+### AWS
+
+#### Dependencies
+
+The AWS deployment script needs the following tools to be installed:
 
 - [apex](https://github.com/apex/apex) - package the Go lambda into a format AWS can run
 - [terraform](https://github.com/hashicorp/terraform) - manage the infrastructure
 - [aws-cli](https://aws.amazon.com/cli/) - apply infrastructure tweaks that terraform cannot support
 
-### Configuration
+#### Configuration
 
 1. Clone this repository in a convenient location.
     ```shell
@@ -24,11 +37,11 @@ The deployment script needs the following tools to be installed:
     - Update the `account_id` (you can find it [here](https://console.aws.amazon.com/support/home))
     - Add your own watches to the list (by default `sauron` watches this file)
 
-### Deployment
+#### Deployment
 
 1. Run the deployment script
     ```shell
-    AWS_PROFILE=<profile> AWS_DEFAULT_REGION=<region> ./scripts/deploy
+    AWS_PROFILE=<profile> AWS_DEFAULT_REGION=<region> ./scripts/deploy-aws
     ```
     This will:
     - Package the lambda function

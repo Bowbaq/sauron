@@ -18,31 +18,23 @@ type Sauron struct {
 	db store.Store
 }
 
-// New creates a new instance of Sauron with simple defaults. State is store in a file (.sauron) and
-// notifications are written to standard output.
-func New() *Sauron {
+// Options contains the parameters necessary to configure Sauron
+type Options struct {
+	WatcherOptions  watcher.Options  `group:"watcher" namespace:"watcher"`
+	NotifierOptions notifier.Options `group:"notifier" namespace:"notifier"`
+	StoreOptions    store.Options    `group:"store" namespace:"store"`
+}
+
+// New creates a new instance of Sauron. If no options are provided, the sate is stored in a file (.sauron)
+// and notifications are written to standard error
+func New(opts Options) *Sauron {
 	return &Sauron{
-		watcher: watcher.NewGithub(),
+		watcher: watcher.New(opts.WatcherOptions),
 
-		notifier: notifier.NewStdout(),
+		notifier: notifier.New(opts.NotifierOptions),
 
-		db: store.NewFile(),
+		db: store.New(opts.StoreOptions),
 	}
-}
-
-// SetWatcher overrides the watcher
-func (s *Sauron) SetWatcher(w watcher.Watcher) {
-	s.watcher = w
-}
-
-// SetNotifier overrides the notifier
-func (s *Sauron) SetNotifier(n notifier.Notifier) {
-	s.notifier = n
-}
-
-// SetStore sets the store
-func (s *Sauron) SetStore(db store.Store) {
-	s.db = db
 }
 
 // Watch checks for updates in the target repository

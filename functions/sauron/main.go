@@ -9,11 +9,15 @@ import (
 	"github.com/apex/go-apex"
 
 	"github.com/Bowbaq/sauron"
-	"github.com/Bowbaq/sauron/errorx"
+	"github.com/Bowbaq/sauron/flagx"
 	"github.com/Bowbaq/sauron/model"
-	"github.com/Bowbaq/sauron/notifier"
-	"github.com/Bowbaq/sauron/store"
 )
+
+var opts sauron.Options
+
+func init() {
+	flagx.MustParse(&opts)
+}
 
 func init() {
 	if os.Getenv("DEBUG") != "" {
@@ -23,22 +27,7 @@ func init() {
 
 func main() {
 	apex.HandleFunc(func(event json.RawMessage, ctx *apex.Context) (interface{}, error) {
-		bucket, key := os.Getenv("S3_BUCKET"), os.Getenv("S3_KEY")
-		if bucket == "" {
-			return nil, errorx.ErrBucketNameRequired
-		}
-		if key == "" {
-			return nil, errorx.ErrBucketKeyRequired
-		}
-
-		snsTopic := os.Getenv("SNS_TOPIC_ARN")
-		if snsTopic == "" {
-			return nil, errorx.ErrSNSTopicRequired
-		}
-
-		s := sauron.New()
-		s.SetStore(store.NewS3(bucket, key))
-		s.SetNotifier(notifier.NewSNS(snsTopic))
+		s := sauron.New(opts)
 
 		var opts model.WatchOptions
 		if err := json.Unmarshal(event, &opts); err != nil {

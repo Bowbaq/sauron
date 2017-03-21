@@ -2,13 +2,11 @@ package: github.com/Bowbaq/sauron
 import:
 - package: github.com/google/go-github
 - package: github.com/jmoiron/sqlx
-- package: github.com/urfave/cli
-  version: ^1.19.1
-- package: gopkg.in/urfave/cli.v1
-  version: ~1.19.1
 - package: github.com/Bowbaq/belt
 - package: github.com/aws/aws-sdk-go
   version: ~1.7.9
   subpackages:
   - aws
 - package: github.com/apex/go-apex
+- package: github.com/jessevdk/go-flags
+  version: ~1.2.0

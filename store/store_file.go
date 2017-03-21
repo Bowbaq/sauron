@@ -6,17 +6,15 @@ import (
 	"os"
 )
 
-const storePath = ".sauron"
-
 type fileStore struct {
 	*jsonStore
 }
 
 // NewFile instantiates a new concrete Store backed by a local file.
-func NewFile() Store {
+func NewFile(path string) Store {
 	return &fileStore{&jsonStore{
 		read: func() (State, error) {
-			f, err := os.OpenFile(storePath, os.O_RDONLY|os.O_CREATE, 0644)
+			f, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 			if err != nil {
 				return nil, err
 			}
@@ -35,7 +33,7 @@ func NewFile() Store {
 		},
 
 		write: func(s State) error {
-			f, err := os.OpenFile(storePath, os.O_WRONLY|os.O_CREATE, 0644)
+			f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0644)
 			if err != nil {
 				return err
 			}
