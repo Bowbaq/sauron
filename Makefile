@@ -6,6 +6,8 @@ default: test
 tools:
 	go get -u github.com/Masterminds/glide
 	go get -u github.com/golang/lint/golint
+	go get -u github.com/mitchellh/gox
+	go get -u github.com/tcnksm/ghr
 	go get -u github.com/alecthomas/gometalinter
 	gometalinter --install
 

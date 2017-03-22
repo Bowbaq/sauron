@@ -17,4 +17,5 @@ sudo rm -rf /usr/local/go
 sudo tar -C /usr/local -xzf "$HOME/.cache/$GO_VERSION"
 
 # Install dependencies
-go get -u github.com/Masterminds/glide && glide install
+make tools
+glide install

@@ -18,4 +18,5 @@ deployment:
   master:
     branch: master
     commands:
-      - AWS_PROFILE=default AWS_DEFAULT_REGION=us-west-2 ./scripts/ci/deploy
+      - scripts/ci/release
+      - AWS_PROFILE=default AWS_DEFAULT_REGION=us-west-2 ./scripts/ci/deploy-aws

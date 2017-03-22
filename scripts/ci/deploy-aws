@@ -17,4 +17,4 @@ pushd infrastructure >/dev/null
   aws s3 cp s3://sauron-terraform/terraform.tfvars .
 popd >/dev/null
 
-"$DIR/../deploy"
+"$DIR/../deploy-aws"
