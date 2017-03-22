@@ -25,3 +25,6 @@ _testmain.go
 
 # Vendored dependencies
 vendor/
+
+# Default sauron state file
+.sauron

@@ -11,7 +11,7 @@ type fileNotifier struct {
 	path string
 }
 
-// NewFile creates a basic Notifier that prints to standard error
+// NewFile creates a basic Notifier that prints to the given file. If path is "", prints to stderr.
 func NewFile(path string) Notifier {
 	return &fileNotifier{
 		path: path,

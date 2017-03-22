@@ -37,6 +37,21 @@ func New(opts Options) *Sauron {
 	}
 }
 
+// SetWatcher overrides the watcher
+func (s *Sauron) SetWatcher(w watcher.Watcher) {
+	s.watcher = w
+}
+
+// SetNotifier overrides the notifier
+func (s *Sauron) SetNotifier(n notifier.Notifier) {
+	s.notifier = n
+}
+
+// SetStore sets the store
+func (s *Sauron) SetStore(db store.Store) {
+	s.db = db
+}
+
 // Watch checks for updates in the target repository
 func (s *Sauron) Watch(opts model.WatchOptions) error {
 	if err := opts.Validate(); err != nil {

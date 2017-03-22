@@ -45,6 +45,9 @@ func New(opts Options) Store {
 		return NewPostgres(opts.Postgres.Datasource)
 
 	default:
+		if opts.File.Path == "" {
+			opts.File.Path = ".sauron"
+		}
 		return NewFile(opts.File.Path)
 	}
 }

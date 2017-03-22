@@ -1,5 +1,4 @@
 PACKAGES?=$$(glide novendor)
-GOFMT_FILES?=$$(find . -name '*.go' | grep -v vendor)
 
 default: test
 
@@ -18,11 +17,7 @@ dev: fmtcheck
 
 # test runs the unit tests with race detection
 test: fmtcheck
-	go test -race $(PACKAGES) $(TESTARGS)
-
-# testnorace runs the tests without race detection
-testnorace: fmtcheck
-	go test $(PACKAGES) $(TESTARGS)
+	go test -v -race $(PACKAGES)
 
 # vet runs the Go source code static analysis tool `vet` to find
 # any common errors.
