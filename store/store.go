@@ -30,7 +30,7 @@ type Options struct {
 
 	// File backend options. This is the default if nothing else is provided
 	File struct {
-		Path string `long:"path" default:".sauron" env:"FILE_PATH" description:"path of the state file"`
+		Path string `long:"path" default:".sauron" env:"STORE_FILE_PATH" description:"path of the state file"`
 	} `group:"store.file" namespace:"file"`
 }
 

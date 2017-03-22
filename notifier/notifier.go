@@ -14,6 +14,11 @@ type Options struct {
 	SNS struct {
 		TopicARN string `long:"topic-arn" env:"SNS_TOPIC_ARN" description:"ARN of the SNS topic"`
 	} `group:"notifier.sns" namespace:"sns"`
+
+	// File target options. This is the default if nothing else is provided
+	File struct {
+		Path string `long:"path" default:"" env:"NOTIFY_FILE_PATH" description:"path of the state file"`
+	} `group:"notifier.file" namespace:"file"`
 }
 
 // New returns a new concrete Notifier implementation depending on which options are set. If none, a basic
@@ -24,6 +29,6 @@ func New(opts Options) Notifier {
 		return NewSNS(opts.SNS.TopicARN)
 
 	default:
-		return NewStderr()
+		return NewFile(opts.File.Path)
 	}
 }
