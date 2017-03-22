@@ -29,12 +29,26 @@ func main() {
 	apex.HandleFunc(func(event json.RawMessage, ctx *apex.Context) (interface{}, error) {
 		s := sauron.New(opts)
 
-		var opts model.WatchOptions
-		if err := json.Unmarshal(event, &opts); err != nil {
+		// Terraform only lets us send flat JSON
+		var watchOpts struct {
+			Owner      string
+			Repository string
+			Branch     string
+			Path       string
+		}
+		if err := json.Unmarshal(event, &watchOpts); err != nil {
 			return nil, err
 		}
 
-		if err := s.Watch(opts); err != nil {
+		err := s.Watch(model.WatchOptions{
+			Repository: model.Repository{
+				Owner: watchOpts.Owner,
+				Name:  watchOpts.Repository,
+			},
+			Branch: watchOpts.Branch,
+			Path:   watchOpts.Path,
+		})
+		if err != nil {
 			return nil, fmt.Errorf("sauron-lambda: Error retrieving latest update: %v", err)
 		}
 
